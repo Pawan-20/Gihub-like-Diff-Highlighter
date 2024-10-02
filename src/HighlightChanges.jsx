@@ -1,7 +1,6 @@
-import React ,{ useState }  from "react";
+import React, { useState } from "react";
 import { diffWordsWithSpace } from "diff";
 import * as _ from "underscore";
-
 
 const newValue = `<p>hello I am a paragraph</p><table style="width: 100%;">
 <tbody>
@@ -51,14 +50,14 @@ const oldValue = `<table class="table table-striped" style="width: 100%; backgro
 function decodeHTMLEntities(text) {
   const textarea = document.createElement("textarea");
   textarea.innerHTML = text;
-  return textarea.value; 
+  return textarea.value;
 }
 function splitHtmlIntoChunks(html) {
   if (_.isEmpty(html)) return [];
   const regex = /(<table[\s\S]*?<\/table>)/g;
   const chunks = html.split(regex);
-    //divides the html string into different tags. so if your html value contains <p>...<p><table></table>, the  resultant array will look like so : [<p>..</p>, <table>...</table>] ( this regex stops at the first closing </table> tag.)
-    // Breakdown of regex : look for the opening table tag , then [\s\S] is  the key part that allows matching any character, including both spaces (\s) and non-spaces (\S).  *?: The *? is a lazy quantifier, meaning it will try to match as few characters as possible while still finding a match for the pattern. By making it lazy (*?), it ensures that the match will stop at the first </table> it finds, thus allowing the regex to work correctly for multiple tables in the input. All the non-table parts will remain as they are.
+  //divides the html string into different tags. so if your html value contains <p>...<p><table></table>, the  resultant array will look like so : [<p>..</p>, <table>...</table>] ( this regex stops at the first closing </table> tag.)
+  // Breakdown of regex : look for the opening table tag , then [\s\S] is  the key part that allows matching any character, including both spaces (\s) and non-spaces (\S).  *?: The *? is a lazy quantifier, meaning it will try to match as few characters as possible while still finding a match for the pattern. By making it lazy (*?), it ensures that the match will stop at the first </table> it finds, thus allowing the regex to work correctly for multiple tables in the input. All the non-table parts will remain as they are.
   return chunks
     .map((chunk, index) => ({
       type: chunk.startsWith("<table") ? "table" : "text",
@@ -66,14 +65,14 @@ function splitHtmlIntoChunks(html) {
       id: `chunk-${index}`,
     }))
     .filter((chunk) => chunk.content !== "");
-    // This function thus returns an array of objects example : [{type: 'text', content: '<p><strong>Some Text</strong></p>', id: 'chunk-0'},{..}]
+  // This function thus returns an array of objects example : [{type: 'text', content: '<p><strong>Some Text</strong></p>', id: 'chunk-0'},{..}]
 }
 
 const TextDiff = ({ oldText, newText }) => {
   const oldDecoded = oldText ? decodeHTMLEntities(oldText) : "";
   const newDecoded = newText ? decodeHTMLEntities(newText) : "";
   const diff = diffWordsWithSpace(oldDecoded, newDecoded);
-  
+
   // diff will be an array of objects. eg : [{count: 6, added: false, removed: false, value: 'Mar 2014'}] ( unchanged content )
 
   return (
@@ -119,8 +118,7 @@ const TableDiff = ({ oldTable, newTable }) => {
     }));
   };
 
-  let unchangedRowStart = null; //If there’s a block of unchanged rows, this variable helps in rendering a single toggle button for that block. Now we change it's value only when when we encounter a changed row. So if 2 rows, in a table of three rows are not changed we will keep the variable's value to 1 ( first row ). then when we go to the third changed row , we reset the unchangedStart's value. using the current row's index ( i.e third row , we can caluclate how many rows are unchanged ). 
-
+  let unchangedRowStart = null; //If there’s a block of unchanged rows, this variable helps in rendering a single toggle button for that block. Now we change it's value only when when we encounter a changed row. So if 2 rows, in a table of three rows are not changed we will keep the variable's value to 1 ( first row ). then when we go to the third changed row , we reset the unchangedStart's value. using the current row's index ( i.e third row , we can caluclate how many rows are unchanged ).
 
   const rowsToRender = []; //Holds the rows and toggle buttons that will be rendered. This is the array of JSX elements.
 
@@ -131,10 +129,10 @@ const TableDiff = ({ oldTable, newTable }) => {
 
     // Note : This if-else block won't handle the scneario for a table which has unchanged rows in the end. That is handled by the other seperate block.
     if (!hasChanges) {
-      // If rows are unchanged, start the streak. Notice that once the value is assigned , we do not change it until me meet a row that has changed content in it.  
+      // If rows are unchanged, start the streak. Notice that once the value is assigned , we do not change it until me meet a row that has changed content in it.
       if (unchangedRowStart === null) unchangedRowStart = rowIndex; // This if condition only tracks the start of  unchanged row streak.
     } else {
-      // If we have a block of unchanged rows, render the toggle , calculate the number of unchanged rows and reset the unchangedRows value back to null ( marking the end of the streak ) 
+      // If we have a block of unchanged rows, render the toggle , calculate the number of unchanged rows and reset the unchangedRows value back to null ( marking the end of the streak )
       if (unchangedRowStart !== null) {
         const groupId = `unchanged-${unchangedRowStart}-${rowIndex}`; // each toggle will have a group ID. This was done to fix a bug where if multiple toggles were there in a table , toggling one toggle , effected the rest of the toggles.
 
@@ -164,7 +162,9 @@ const TableDiff = ({ oldTable, newTable }) => {
                 {Array.from({ length: maxCols }, (_, colIndex) => (
                   <td key={colIndex}>
                     <span
-                      dangerouslySetInnerHTML={{ __html: oldRows[i][colIndex] || "" }}
+                      dangerouslySetInnerHTML={{
+                        __html: oldRows[i][colIndex] || "",
+                      }}
                     />
                   </td>
                 ))}
@@ -204,9 +204,9 @@ const TableDiff = ({ oldTable, newTable }) => {
     }
   }
 
-  // to handle the edge case where there are unchanged rows in the end. The above code handles till we find a changed row. ( when we find a changed row , we reset unchangedRowStart), so the code never reaches inside this if block. however if say the second last row is unchanged. so in the second last row we change unchangedRowStart to secondLastRow's index. 
+  // to handle the edge case where there are unchanged rows in the end. The above code handles till we find a changed row. ( when we find a changed row , we reset unchangedRowStart), so the code never reaches inside this if block. however if say the second last row is unchanged. so in the second last row we change unchangedRowStart to secondLastRow's index.
 
-  //After the loop has ended but the streak is still on : 
+  //After the loop has ended but the streak is still on :
   if (unchangedRowStart !== null) {
     const groupId = `unchanged-${unchangedRowStart}-end`;
     rowsToRender.push(
@@ -217,7 +217,9 @@ const TableDiff = ({ oldTable, newTable }) => {
               ▶ Click to show {maxRows - unchangedRowStart} unchanged rows
             </span>
           ) : (
-            <span onClick={() => toggleExpand(groupId)}>▼ Hide unchanged rows</span>
+            <span onClick={() => toggleExpand(groupId)}>
+              ▼ Hide unchanged rows
+            </span>
           )}
         </td>
       </tr>
@@ -229,7 +231,11 @@ const TableDiff = ({ oldTable, newTable }) => {
           <tr key={i}>
             {Array.from({ length: maxCols }, (_, colIndex) => (
               <td key={colIndex}>
-                <span dangerouslySetInnerHTML={{ __html: oldRows[i][colIndex] || "" }} />
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: oldRows[i][colIndex] || "",
+                  }}
+                />
               </td>
             ))}
           </tr>
@@ -254,8 +260,8 @@ function extractRows(html) {
 }
 
 const HighlightChanges = () => {
-  const oldChunks = splitHtmlIntoChunks((oldValue));
-  const newChunks = splitHtmlIntoChunks((newValue));
+  const oldChunks = splitHtmlIntoChunks(oldValue);
+  const newChunks = splitHtmlIntoChunks(newValue);
 
   // State to store which sections are collapsed or expanded
   const [expandedSections, setExpandedSections] = useState({});
@@ -280,7 +286,9 @@ const HighlightChanges = () => {
     <div>
       <h1>Content with Highlighted Changes</h1>
       {newChunks.map((newChunk, index) => {
-        const oldChunk = oldChunks.find((chunk) => chunk.type === newChunk.type);
+        const oldChunk = oldChunks.find(
+          (chunk) => chunk.type === newChunk.type
+        );
         // If oldChunk is not found , it will be undefined.
         if (oldChunk) {
           // remove that chunk from the oldChunks array. This is done to achieve two things : 1) optimization 2) in the end only removed chunks/content will be in the oldChunks array
@@ -299,23 +307,29 @@ const HighlightChanges = () => {
                 toggleExpand={toggleExpandRow}
               />
             ) : (
-              // when size of newChunk > oldChunk , some oldChunk will be undefined implying that the content is new.
               <div style={!oldChunk ? { backgroundColor: "#d4edda" } : {}}>
-                {/* If content is unchanged, show a button to toggle its visibility */}
-                {oldChunk && !_.isEqual(oldChunk.content, newChunk.content) ? (
+                {/* Check if content is new or has changed */}
+                {!oldChunk || !_.isEqual(oldChunk.content, newChunk.content) ? (
                   <TextDiff
-                    oldText={oldChunk.content}
+                    oldText={oldChunk ? oldChunk.content : ""}
                     newText={newChunk.content}
                   />
                 ) : (
                   <div>
+                    {/* If unchanged, show a toggle */}
                     {!isCollapsed ? (
                       <TextDiff
                         oldText={oldChunk ? oldChunk.content : ""}
                         newText={newChunk.content}
                       />
                     ) : (
-                      <div style={{ cursor: "pointer", color: "blue", marginLeft:"12px" }}>
+                      <div
+                        style={{
+                          cursor: "pointer",
+                          color: "blue",
+                          marginLeft: "12px",
+                        }}
+                      >
                         <span onClick={() => toggleExpandSection(newChunk.id)}>
                           ▶ Click to show unchanged content
                         </span>
@@ -329,7 +343,7 @@ const HighlightChanges = () => {
         );
       })}
 
- {/* Once the above loop is done  , only the removed chunks in the oldChunks array will remain. just show them with a red background color */}
+      {/* Once the above loop is done  , only the removed chunks in the oldChunks array will remain. just show them with a red background color */}
       {oldChunks.map((chunk, index) => (
         <div
           key={`removed-${index}`}

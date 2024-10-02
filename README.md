@@ -19,4 +19,21 @@ This tool is designed to be integrated into projects that require detailed chang
 
 ## Integration Instructions
 
-To compare and highlight differences between objects, make sure to **JSON.stringify** the objects before running the comparison. The tool will then highlight all value changes between the two data sets.
+Pass the Values and newValues to the HighlightChanges component. Currently the values are hard coded. Here's  a demo of how to integrate this component: 
+
+- Define a function to check whether a value is an HTML string (such as one from a WYSIWYG editor) or not. If the value is an HTML string, pass it directly; otherwise, convert it to a string using `JSON.stringify` before passing.
+
+```javascript
+function isHTMLString(value) {
+  const htmlPattern = /<\/?[a-z][\s\S]*>/i; // Matches any opening or closing tag
+  return htmlPattern.test(value);
+}
+``` 
+ - Simply then just use this function : 
+
+```javascript 
+<HighlightChanges 
+  oldValue={isHTMLString(change.oldValue) ? change.oldValue : JSON.stringify(change.oldValue)} 
+  newValue={isHTMLString(change.newValue) ? change.newValue : JSON.stringify(change.newValue)} 
+/>
+```
